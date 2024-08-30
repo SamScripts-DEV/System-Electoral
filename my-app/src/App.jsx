@@ -1,34 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Principal from './layout/principal.jsx'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
+import Principal from "./layout/principal.jsx";
+import UsuarioResponsable from "./components/UsuarioResponsable.jsx";
+import Papeletas from "./components/Papeletas.jsx";
+import ConteoVotos from "./components/ConteoVotos.jsx";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <>
       <div>
-        <Principal/>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <Principal />
+        <UsuarioResponsable />
+        <Papeletas />
+        <ConteoVotos />
+        <button
+          className="mt-4 p-2 bg-blue-500 text-white rounded"
+        >
+          Agregar Acta
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
