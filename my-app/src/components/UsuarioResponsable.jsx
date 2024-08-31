@@ -4,6 +4,7 @@ import Tabla from "./Tabla";
 
 function UsuarioResponsable() {
     const [form, setForm] = useState({
+        
         responsable: '',
         cedula: '',
         numeroActa: '',
@@ -28,33 +29,63 @@ function UsuarioResponsable() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const papeletasEntregadas = parseInt(form.papeletasEntregadas || 0);
+        const papeletasDevueltas = parseInt(form.papeletasDevueltas || 0);
+        const totalVotos = parseInt(form.lista1) + parseInt(form.lista2) + parseInt(form.lista3) + parseInt(form.votosBlancos) + parseInt(form.votosNulos);
+        const totalElectores = parseInt(form.totalElectores || 0);
+        const totalEmpadronados = parseInt(form.totalEmpadronados || 0);
+
+        if(papeletasEntregadas !== totalEmpadronados) {
+            alert('El total de empadronados no coincide con las papeletas entregadas');
+            return;
+        }
+        if (papeletasEntregadas < papeletasDevueltas) {
+            alert('Las papeletas devueltas no pueden ser mayores a las entregadas');
+            return;
+        }
+        if((papeletasEntregadas - papeletasDevueltas) !== totalElectores) {
+            alert('El total de electores no coincide con la diferencia de papeletas entregadas y devueltas');
+            return;
+        }
+        if (totalVotos !== totalElectores) {
+            alert('El total de votos no coincide con el total de electores');
+            return;
+        }
         try {
-            const url = 'http://localhost:3000/api/registrar';
-            console.log('Sending data:', form); // Agrega esto para verificar los datos enviados
-            const res = await axios.post(url, form);
-            console.log('Response:', res);
-            setRefresh(!refresh);
-            setForm({
-                responsable: '',
-                cedula: '',
-                numeroActa: '',
-                papeletasEntregadas: '',
-                papeletasDevueltas: '',
-                totalEmpadronados: '',
-                totalElectores: '',
-                lista1: '',
-                lista2: '',
-                lista3: '',
-                votosBlancos: '',
-                votosNulos: '',
-            });
+          const url = form._id ? `http://localhost:3000/api/acta/${form._id}` : 'http://localhost:3000/api/registrar';
+          const method = form._id ? 'PUT' : 'POST';
+          console.log('Sending data:', form); // Agrega esto para verificar los datos enviados
+          const res = await axios({ url, method, data: form });
+          console.log('Response:', res);
+          setRefresh(!refresh);
+          setForm({
+              _id: '',
+              responsable: '',
+              cedula: '',
+              numeroActa: '',
+              papeletasEntregadas: '',
+              papeletasDevueltas: '',
+              totalEmpadronados: '',
+              totalElectores: '',
+              lista1: '',
+              lista2: '',
+              lista3: '',
+              votosBlancos: '',
+              votosNulos: '',
+          });
         } catch (error) {
             console.log('Error:', error);
+            if (error.response && error.response.data && error.response.data.error) {
+              alert(`Error: ${error.response.data.error}`);
+          } else {
+              alert('Error desconocido al procesar la solicitud.');
+          }
         }
     }
 
     const handleEdit = async (acta) => {
         setForm({
+            _id: acta._id,
             responsable: acta.responsable,
             cedula: acta.cedula,
             numeroActa: acta.numeroActa,
@@ -316,7 +347,7 @@ function UsuarioResponsable() {
             <label className="mr-2">Total de votos</label>
           </div>
           <div className="w-1/3">
-            <label className="mr-2 font-bold"></label>
+            <label className="mr-2 font-bold">{parseInt(form.lista1) + parseInt(form.lista2) + parseInt(form.lista3) + parseInt(form.votosBlancos) + parseInt(form.votosNulos)}</label>
           </div>
         </div>
       </div>
@@ -324,7 +355,7 @@ function UsuarioResponsable() {
           className="mt-4 p-2 bg-blue-500 text-white rounded mb-6"
           
         >
-          Agregar Acta
+          {form._id ? 'Actualizar Acta' : 'Registrar Acta'}
         </button>
         </form>
         <Tabla refreshData={refresh} onEdit={handleEdit} />
